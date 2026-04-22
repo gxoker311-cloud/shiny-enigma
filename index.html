@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gxoker  စနစ်သစ် UBT  </title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Montserrat:wght@500;700&family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --gold: #f59e0b; 
+            --neon-blue: #3b82f6;
+            --dark-bg: #020617;
+            --glass: rgba(15, 23, 42, 0.9);
+            --danger: #ef4444;
+            --success: #22c55e;
+            --rgb-glow: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Montserrat', 'Pyidaungsu', sans-serif; }
+        body { margin: 0; background: var(--dark-bg); color: #fff; overflow: hidden; display: flex; flex-direction: column; height: 100dvh; background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #020617 100%); }
+
+        /* ✨ Header & Progress */
+        .top-bar { display: flex; align-items: center; background: #0f172a; height: 55px; padding: 0 15px; position: relative; }
+        .top-bar::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: var(--rgb-glow); background-size: 400%; animation: rgb-move 15s linear infinite; }
+        .nav-brand { font-family: 'Orbitron'; font-weight: 900; color: var(--gold); font-size: 14px; }
+        .timer { margin-left: auto; font-family: 'Orbitron'; font-size: 16px; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+
+        .progress-rail { height: 3px; background: #1e293b; width: 100%; }
+        .progress-fill { height: 100%; background: var(--gold); width: 0%; transition: 0.5s ease; }
+
+        /* 📱 Main UI */
+        .main-content { display: flex; flex: 1; overflow: hidden; padding: 10px; gap: 10px; }
+        .question-card { flex: 1.3; background: var(--glass); backdrop-filter: blur(15px); border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); padding: 15px; overflow-y: auto; }
+        .q-badge { display: inline-block; padding: 2px 8px; background: var(--gold); color: #000; border-radius: 4px; font-size: 9px; font-weight: 900; margin-bottom: 8px; font-family: 'Orbitron'; }
+        .q-text { font-size: 14px; line-height: 1.6; font-weight: 700; color: #f1f5f9; white-space: pre-line; }
+
+        .answer-zone { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .opt-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; transition: 0.3s; font-size: 13px; font-weight: 500; }
+        .opt-item:hover { background: rgba(255,255,255,0.05); transform: translateX(5px); }
+        .opt-item.active { background: rgba(59, 130, 246, 0.15); border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 12px rgba(59, 130, 246, 0.2); }
+        .opt-num { width: 22px; height: 22px; border: 1px solid currentColor; border-radius: 5px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 10px; font-weight: 900; flex-shrink: 0; }
+
+        /* 🚀 Bottom Nav */
+        .footer-nav { display: flex; height: 65px; background: #0f172a; border-top: 1px solid #1e293b; padding: 8px; gap: 8px; }
+        .nav-btn { flex: 1; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; font-size: 12px; }
+        .btn-prev { background: #1e293b; color: #94a3b8; }
+        .btn-next { background: var(--gold); color: #000; }
+        .btn-submit { background: var(--success); color: #fff; flex: 1.5; box-shadow: 0 0 15px rgba(34, 197, 94, 0.25); }
+
+        /* 🏆 Results Screen */
+        #result-screen { position: fixed; inset: 0; z-index: 999; background: var(--dark-bg); display: none; flex-direction: column; align-items: center; padding: 20px 10px; overflow-y: auto; }
+        .score-circle { width: 125px; height: 125px; border: 4px solid var(--gold); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 15px 0; }
+        .score-val { font-size: 38px; font-weight: 900; font-family: 'Orbitron'; color: var(--gold); }
+        .review-box { background: #1e293b; border-radius: 12px; width: 100%; max-width: 450px; padding: 12px; margin-bottom: 8px; font-size: 11.5px; border-left: 5px solid #334155; }
+        .is-correct { border-left-color: var(--success); }
+        .is-wrong { border-left-color: var(--danger); }
+
+        @keyframes rgb-move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @media (max-width: 768px) { .main-content { flex-direction: column; } .question-card { flex: none; height: 42%; } }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="nav-brand">GXOKERစနစ်သစ်UBT SET-45
+        <div class="timer" id="timer">20:00</div>
+    </div>
+    <div class="progress-rail"><div class="progress-fill" id="p-bar"></div></div>
+
+    <div class="main-content">
+        <div class="question-card">
+            <div class="q-badge" id="q-idx">QUESTION 01</div>
+            <div class="q-text" id="q-text">Loading...</div>
+        </div>
+        <div class="answer-zone" id="ans-list"></div>
+    </div>
+
+    <div class="footer-nav">
+        <button class="nav-btn btn-prev" onclick="move(-1)">PREV</button>
+        <button class="nav-btn btn-next" onclick="move(1)">NEXT</button>
+        <button class="nav-btn btn-submit" onclick="finish()">SUBMIT</button>
+    </div>
+
+    <div id="result-screen">
+        <h3 style="font-family:'Orbitron'; color: var(--neon-blue);">FINAL ASSESSMENT</h3>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size:8px; font-weight:900;">POINTS</span>
+        </div>
+        <button class="nav-btn btn-next" style="width: 180px; height: 45px; flex:none; margin-bottom: 20px;" onclick="location.reload()">RETAKE TEST</button>
+        <div id="review-list" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
+    </div>
+
+<script>
+    const data = [
+        { q: "1. 가: 리한 씨, 작업이 다 끝났어요?\n나: 아니요, 아직 ______. 10분만 더 기다려 주세요.", a: ["끝내는 중이에요", "끝낼 거예요", "끝내고 싶어요", "끝내기 위해서"], c: 0 },
+        { q: "2. 작업장 바닥에 기름이 있어서 _____넘어질 뻔했습니다.", a: ["미끄러워서", "미끄러우니까", "미끄러우면", "미끄럽고"], c: 0 },
+        { q: "3. 가: 투안 씨, 이 기계 어떻게 사용하는지 알아요?\n나: 아니요, 저도 잘 몰라요. 반장님께 ______ 보세요.", a: ["가르쳐", "물어", "도와", "빌려"], c: 1 },
+        { q: "4. 고향에 있는 가족들에게 편지를 (      ) 우체국에 가야 합니다.", a: ["보내려고", "보내서", "보내면", "보내니까"], c: 0 },
+        { q: "5. 우리 공장은 토요일에도 일을 하지만 일요일에는 항상 ______.", a: ["일합니다", "쉽니다", "나갑니다", "배웁니다"], c: 1 },
+        { q: "6. 가: 주말에 친구하고 같이 등산을 ______ 해요.\n나: 와, 좋겠네요. 조심히 다녀오세요.", a: ["가야", "가기로", "가니까", "가면서"], c: 1 },
+        { q: "7. 날씨가 너무 ______에어컨을 켰습니다.", a: ["더워서", "추워서", "맑아서", "흐려서"], c: 0 },
+        { q: "8. 가: 이 서류를 복사해야 하는데 어떻게 해요?\n나: 여기 복사기에 종이를 넣고 시작 버튼을 ______ 됩니다.", a: ["누르면", "누르고", "누르니까", "누르거나"], c: 0 },
+        { q: "9. 공장에서 일할 때는 안전을 위해서 항상 보호구를 ______ 합니다.", a: ["착용해야", "착용하러", "착용하고", "착용하거나"], c: 0 },
+        { q: "10. 가: 점심 먹으러 갈까요?\n나: 미안해요. 지금 일이 많아서 이것만 _______ 갈게요.", a: ["끝나고", "끝내고", "끝나면", "끝내면"], c: 1 },
+        { q: "11. 어제는 월급날이었습니다. 그래서 통장에 _______ 돈을 확인했습니다.", a: ["들어온", "나간", "보낸", "빌린"], c: 0 },
+        { q: "12. 가: 민수 씨, 내일 같이 영화 볼까요?\n나: 내일은 고향 친구를 ______ 약속이 있어요.", a: ["만나기로 한", "만나야 하는", "만날 것 같은", "만나려고 하는"], c: 0 },
+        { q: "13. 버스나 지하철에서는 어르신들께 자리를 _______ 드려야 합니다.", a: ["양보해", "알려", "바꾸어", "빌려"], c: 0 },
+        { q: "14. 가: 한국에________ 얼마나 됐어요?\n나: 6개월 됐어요.", a: ["온 지", "가 본 지", "산 지", "배우는 지"], c: 0 },
+        { q: "15. 한국 사람들은 보통 명절에 고향에 _______ 가족들을 만납니다.", a: ["내려가서", "내려가니까", "내려가면", "내려가려고"], c: 0 },
+        { q: "16. 가: 영수 씨, 어제 왜 회사에 안 왔어요?\n나: 몸이 너무 ______ 집에서 쉬었어요.", a: ["아파서", "좋아서", "바빠서", "늦어서"], c: 0 },
+        { q: "17. 이 약은 식사 후에 _______ 드세요.", a: ["30분", "30번", "30살", "30권"], c: 0 },
+        { q: "18. 가: 투안 씨는 요리를 잘해요?\n나: 아니요, 저는 요리를 잘 _______.", a: ["못해요", "안 해요", "해요", "싶어요"], c: 0 },
+        { q: "19. 기계가 고장이 나면 직접 고치지 말고 기술자를 ______.", a: ["불러야 합니다", "부를 겁니다", "불렀습니다", "부르고 싶습니다"], c: 0 },
+        { q: "20. 가: 사장님, 오늘 잔업이 있어요?\n나: 네, 제품을 오늘까지 다 _____ 해서 조금 더 일해야 해요.", a: ["보내야", "보러", "보내기로", "보내면서"], c: 0 }
+    ];
+
+    let current = 0, userAns = Array(20).fill(null), timeLeft = 1200;
+
+    function render() {
+        const item = data[current];
+        document.getElementById('q-idx').innerText = `QUESTION ${current+1} / 20`;
+        document.getElementById('q-text').innerText = item.q;
+        document.getElementById('ans-list').innerHTML = item.a.map((opt, i) => `
+            <div class="opt-item ${userAns[current] === i ? 'active' : ''}" onclick="pick(${i})">
+                <div class="opt-num">${i+1}</div>
+                <div>${opt}</div>
+            </div>
+        `).join('');
+        document.getElementById('p-bar').style.width = `${(userAns.filter(x => x !== null).length / 20) * 100}%`;
+    }
+
+    function pick(i) { userAns[current] = i; render(); }
+    function move(d) { if(current+d >= 0 && current+d < 20) { current += d; render(); } }
+
+    const timer = setInterval(() => {
+        timeLeft--;
+        let m = Math.floor(timeLeft/60), s = timeLeft%60;
+        document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+        if(timeLeft <= 0) finish();
+    }, 1000);
+
+    function finish() {
+        if(!confirm("မေးခွန်းတွေ အားလုံးဖြေဆိုပြီးပြီလား?")) return;
+        clearInterval(timer);
+        const score = userAns.filter((a, i) => a === data[i].c).length * 5;
+        document.getElementById('res-score').innerText = score;
+        document.getElementById('result-screen').style.display = 'flex';
+        document.getElementById('review-list').innerHTML = data.map((d, i) => `
+            <div class="review-box ${userAns[i] === d.c ? 'is-correct' : 'is-wrong'}">
+                <b>Q${i+1}. ${userAns[i] === d.c ? 'CORRECT' : 'WRONG'}</b><br>
+                <span style="color:var(--success)">정답: ${d.a[d.c]}</span>
+            </div>
+        `).join('');
+    }
+
+    render();
+</script>
+</body>
+</html>
+
